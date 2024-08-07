@@ -4,7 +4,7 @@
 # Tool - Convert Text To Collection
 Convert a single text variable such as a multi-select picklist or comma delimited email list into a text collection.
 
-Use [workbench](https://workbench.developerforce.com/login.php) to easily install this flow in any org. 
+Download the Zip file and use [workbench](https://workbench.developerforce.com/login.php) to easily install this flow in any org. 
 
 ## Contribute 
 
