@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>61.0</apiVersion>
+    <assignments>
+        <description>If the text starts with the delimiter, remove it</description>
+        <name>Remove_Start_Delimiter</name>
+        <label>Remove Start Delimiter</label>
+        <locationX>182</locationX>
+        <locationY>134</locationY>
+        <assignmentItems>
+            <assignToReference>Text</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>formulaRemoveStartDelimiter</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Continue_Loop</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Add to collection. Remove from the text variable. Add counter</description>
+        <name>Set_Text_Collection</name>
+        <label>Set Text Collection</label>
+        <locationX>50</locationX>
+        <locationY>350</locationY>
+        <assignmentItems>
+            <assignToReference>TextCollection</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>formulaFirstItem</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>Text</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>formulaRemoveFirstItem</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varCounter</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Continue_Loop</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <description>If the text is blank stop loop. Also maxes out at 999 loops.</description>
+        <name>Continue_Loop</name>
+        <label>Continue Loop?</label>
+        <locationX>182</locationX>
+        <locationY>242</locationY>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Continue_Loop_Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Text</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>varCounter</leftValueReference>
+                <operator>LessThan</operator>
+                <rightValue>
+                    <numberValue>1000.0</numberValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Text_Collection</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <description>Convert a single text variable such as a multi-select picklist or comma delimited email list into a text collection.</description>
+    <environments>Default</environments>
+    <formulas>
+        <description>Gets the first item out of the text</description>
+        <name>formulaFirstItem</name>
+        <dataType>String</dataType>
+        <expression>TRIM(
+    IF(
+        FIND({!Delimitator}, {!Text}) &gt; 1,
+        LEFT({!Text}, FIND({!Delimitator}, {!Text}) - 1),
+        {!Text}
+    )
+)</expression>
+    </formulas>
+    <formulas>
+        <description>Gets the text without the first item</description>
+        <name>formulaRemoveFirstItem</name>
+        <dataType>String</dataType>
+        <expression>IF(
+    FIND({!Delimitator}, {!Text}) &gt; 0,
+    TRIM(
+        RIGHT(
+            {!Text},
+            LEN({!Text}) - FIND({!Delimitator}, {!Text})
+        )
+    ),
+    &quot;&quot;
+)</expression>
+    </formulas>
+    <formulas>
+        <description>When text starts with the delimiter we remove it</description>
+        <name>formulaRemoveStartDelimiter</name>
+        <dataType>String</dataType>
+        <expression>IF(
+    LEFT(TRIM({!Text}), 1) = {!Delimitator},
+    RIGHT({!Text}, LEN({!Text}) - FIND({!Delimitator}, {!Text})),
+    {!Text}
+)</expression>
+    </formulas>
+    <interviewLabel>Tool - Convert Text To Collection {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Tool - Convert Text To Collection</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Remove_Start_Delimiter</targetReference>
+        </connector>
+    </start>
+    <status>Draft</status>
+    <variables>
+        <description>Text to separate items by</description>
+        <name>Delimitator</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>;</stringValue>
+        </value>
+    </variables>
+    <variables>
+        <description>Input text</description>
+        <name>Text</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>Test1;Test2;Test3;</stringValue>
+        </value>
+    </variables>
+    <variables>
+        <description>Output text collection</description>
+        <name>TextCollection</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <description>Counter used to ensure no infinite loop</description>
+        <name>varCounter</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+        <value>
+            <numberValue>0.0</numberValue>
+        </value>
+    </variables>
+</Flow>
