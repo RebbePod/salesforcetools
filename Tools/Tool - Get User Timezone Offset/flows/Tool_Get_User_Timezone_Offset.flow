@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <assignments>
+        <name>Set_Offset_Output</name>
+        <label>Set Offset Output</label>
+        <locationX>379</locationX>
+        <locationY>366</locationY>
+        <assignmentItems>
+            <assignToReference>varOffset</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>formulaOffset</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <environments>Default</environments>
+    <formulas>
+        <name>formulaDateTimeLocal</name>
+        <dataType>DateTime</dataType>
+        <expression>DATETIMEVALUE(TEXT(DATE({!formulaYear}, {!formulaMonth},{!formulaDay})) + &quot; &quot; + {!formulaHourText} + &quot;:00:00&quot;)</expression>
+    </formulas>
+    <formulas>
+        <name>formulaDateTimeUTC</name>
+        <dataType>DateTime</dataType>
+        <expression>DATETIMEVALUE(TEXT({!varDate}) + &quot; 00:00:00&quot;)</expression>
+    </formulas>
+    <formulas>
+        <name>formulaDay</name>
+        <dataType>Number</dataType>
+        <expression>    VALUE(
+        MID(
+            {!DateTimeLocalTT},
+            FIND( &quot;/&quot;, {!DateTimeLocalTT} ) + 1,
+            FIND( &quot;/&quot;, {!DateTimeLocalTT}, FIND( &quot;/&quot;, {!DateTimeLocalTT} ) + 1 ) - FIND( &quot;/&quot;, {!DateTimeLocalTT} ) - 1
+        )   
+    )</expression>
+        <scale>0</scale>
+    </formulas>
+    <formulas>
+        <name>formulaHour</name>
+        <dataType>Number</dataType>
+        <expression>MOD(
+    VALUE(
+        MID(
+            {!DateTimeLocalTT},
+            FIND(&quot; &quot;, {!DateTimeLocalTT}) + 1,
+            FIND(&quot;:&quot;, {!DateTimeLocalTT}) - FIND(&quot; &quot;, {!DateTimeLocalTT}) - 1
+        )
+    )
+    + IF(
+        AND(RIGHT({!DateTimeLocalTT}, 2) = &quot;PM&quot;, MID({!DateTimeLocalTT}, FIND(&quot; &quot;, {!DateTimeLocalTT}) + 1, FIND(&quot;:&quot;, {!DateTimeLocalTT}) - FIND(&quot; &quot;, {!DateTimeLocalTT}) - 1) &lt;&gt; &quot;12&quot;),
+        12,
+        0
+    )
+    - IF(
+        AND(RIGHT({!DateTimeLocalTT}, 2) = &quot;AM&quot;, MID({!DateTimeLocalTT}, FIND(&quot; &quot;, {!DateTimeLocalTT}) + 1, FIND(&quot;:&quot;, {!DateTimeLocalTT}) - FIND(&quot; &quot;, {!DateTimeLocalTT}) - 1) = &quot;12&quot;),
+        12,
+        0
+    ),
+    24
+)</expression>
+        <scale>0</scale>
+    </formulas>
+    <formulas>
+        <name>formulaHourText</name>
+        <dataType>String</dataType>
+        <expression>IF({!formulaHour} &lt; 10, &quot;0&quot;, &quot;&quot;)
++
+TEXT({!formulaHour})</expression>
+    </formulas>
+    <formulas>
+        <name>formulaMonth</name>
+        <dataType>Number</dataType>
+        <expression>    VALUE(
+        MID(
+            {!DateTimeLocalTT},
+            1,
+            FIND( &quot;/&quot;, {!DateTimeLocalTT} ) -1
+        )  
+    )</expression>
+        <scale>0</scale>
+    </formulas>
+    <formulas>
+        <name>formulaOffset</name>
+        <dataType>Number</dataType>
+        <expression>24 * ({!formulaDateTimeLocal} - {!formulaDateTimeUTC})</expression>
+        <scale>0</scale>
+    </formulas>
+    <formulas>
+        <name>formulaYear</name>
+        <dataType>Number</dataType>
+        <expression>VALUE(
+    MID(
+        {!DateTimeLocalTT},
+        FIND( &quot;/&quot;, {!DateTimeLocalTT}, FIND( &quot;/&quot;, {!DateTimeLocalTT} ) + 1 ) + 1,
+        4
+    )
+)</expression>
+        <scale>0</scale>
+    </formulas>
+    <interviewLabel>Tool - Get User Timezone Offset {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Tool - Get User Timezone Offset</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>FREE_FORM_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>29</locationX>
+        <locationY>347</locationY>
+        <connector>
+            <targetReference>Set_Offset_Output</targetReference>
+        </connector>
+    </start>
+    <status>Draft</status>
+    <textTemplates>
+        <name>DateTimeLocalTT</name>
+        <isViewedAsPlainText>true</isViewedAsPlainText>
+        <text>{!formulaDateTimeUTC}</text>
+    </textTemplates>
+    <variables>
+        <name>varDate</name>
+        <dataType>Date</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <elementReference>$Flow.CurrentDate</elementReference>
+        </value>
+    </variables>
+    <variables>
+        <name>varOffset</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+        <scale>0</scale>
+        <value>
+            <numberValue>0.0</numberValue>
+        </value>
+    </variables>
+</Flow>
