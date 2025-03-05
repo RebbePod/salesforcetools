@@ -1,0 +1,79 @@
+<template>
+    <div class="time-picker-container">
+        <!-- Display the label -->
+        <template if:true={label}>
+            <div class="time-picker-label">{label}</div>
+        </template>
+
+        <div class="time-picker-body">
+            <!-- Hour Input -->
+            <div class="time-picker-input-container">
+                <input
+                    id="hour-input"
+                    type="number"
+                    class="time-picker-input"
+                    value={hour}
+                    min={hourMin}
+                    max={hourMax}
+                    onchange={handleHourChange}
+                    onfocus={showHourPopup}
+                    onblur={hideHourPopup}
+                />
+                <!-- Popup for Hour Selection -->
+                <div class="hour-popup" if:true={isHourPopupVisible} onmousedown={preventBlur}>
+                    <template for:each={hours} for:item="hourOption">
+                        <div
+                            key={hourOption}
+                            class="popup-item"
+                            data-value={hourOption}
+                            onclick={selectHour}
+                        >
+                            {hourOption}
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Separator -->
+            <span class="time-picker-separator">:</span>
+
+            <!-- Minute Input -->
+            <div class="time-picker-input-container">
+                <input
+                    id="minute-input"
+                    type="number"
+                    class="time-picker-input"
+                    value={minute}
+                    min="0"
+                    max="59"
+                    onchange={handleMinuteChange}
+                    onfocus={showMinutePopup}
+                    onblur={hideMinutePopup}
+                />
+                <!-- Popup for Minute Selection -->
+                <div class="minute-popup" if:true={isMinutePopupVisible} onmousedown={preventBlur}>
+                    <template for:each={minuteOptions} for:item="minuteOption">
+                        <div
+                            key={minuteOption}
+                            class="popup-item"
+                            data-value={minuteOption}
+                            onclick={selectMinute}
+                        >
+                            {minuteOption}
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- AM/PM Toggle -->
+            <template if:false={is24HourFormat}>
+                <button class="am-pm-toggle" onclick={toggleAmPm}>{ampm}</button>
+            </template>
+        </div>
+
+        <!-- Error Message -->
+        <template if:true={errorMessage}>
+            <div class="error-message-1">{errorMessage}</div>
+        </template>
+    </div>
+</template>

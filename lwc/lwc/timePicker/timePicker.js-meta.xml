@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata" fqn="timePicker">
+    <apiVersion>62.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Time Picker</masterLabel>
+    <description>A nice and intuitive way to select the time</description>
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <property name="minuteValue" type="String" label="Minute Value" description="The minute value (00-59). Can be used as a default value and output." />
+            <property name="hourValue" type="String" label="Hour Value" description="The hour value (00-23, in 24-hour format). Can be used as a default value and output." />
+            <property name="ampmValue" type="Boolean" label="PM Value" description="If true, the selected time is PM; if false, it is AM." />
+            <property name="is24HourFormat" type="Boolean" label="Use 24-Hour Time Format" role="inputOnly" default="false" description="If true, use 24-hour format; otherwise, use 12-hour format with AM/PM." />
+            <property name="label" type="String" label="Label" role="inputOnly" description="Label to display above the time picker." />
+            <property name="isRequired" type="Boolean" label="Required" role="inputOnly" default="false" description="If true, the time picker is required." />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>
