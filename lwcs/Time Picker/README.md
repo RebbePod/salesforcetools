@@ -4,7 +4,9 @@
 # LWC - Time Picker
 A nice clean and fast time picker componont for Salesforce flow.
 
-<img width="489" alt="image" src="https://github.com/user-attachments/assets/323ccb26-a82f-48c9-9a10-9eeaead0b298" />
+<img width="489" alt="image" src="https://github.com/user-attachments/assets/323ccb26-a82f-48c9-9a10-9eeaead0b298" /> <p>
+Quickly set the minutes using the 5-minute interval dropdown, then fine-tune with the arrow buttons. <p>
+<img width="204" alt="image" src="https://github.com/user-attachments/assets/219b7958-5dad-407a-867e-caf786053eb6" />
 
 ### Install
 Download the Zip file and use [workbench](https://workbench.developerforce.com/login.php) to easily install in any org. 
