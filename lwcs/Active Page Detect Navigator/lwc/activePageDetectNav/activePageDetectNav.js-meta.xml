@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata" fqn="pageVisibilityTracker">
+    <apiVersion>63.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Active Page Detect Navigator</masterLabel>
+    <description>Detects if the page is active or inactive and can auto-navigate in Flow.</description>
+    
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+
+            <!-- Inputs -->
+            <property name="navigateOnActive" type="Boolean" role="inputOnly"
+                label="On Active: Auto Navigate"
+                description="If enabled, the Flow will auto-navigate when the page becomes active again (either the tab is visible or the window gains focus)." />
+
+            <property name="minTimeInactiveBeforeActiveNav" type="Integer" role="inputOnly"
+                label="On Active: Min Inactive Time (ms)"
+                description="The page must remain inactive for at least this amount of time before it can trigger navigation when it becomes active again. Prevents quick back-and-forth changes from triggering navigation." />
+
+            <property name="navigateDelayActive" type="Integer" role="inputOnly"
+                label="On Active: Navigate Delay (ms)"
+                description="How long (in milliseconds) to wait before triggering navigation when the page becomes active again." />
+                
+
+            <property name="navigateOnInactive" type="Boolean" role="inputOnly"
+                label="On Inactive: Auto Navigate"
+                description="If enabled, the Flow will auto-navigate when the page becomes inactive (either the tab is hidden or the window loses focus)." />
+
+            <property name="minTimeActiveBeforeInactiveNav" type="Integer" role="inputOnly"
+                label="On Inactive: Min Active Time (ms)"
+                description="The page must remain active for at least this amount of time before it can trigger navigation when it becomes inactive. Prevents quick back-and-forth changes from triggering navigation." />
+
+            <property name="navigateDelayInactive" type="Integer" role="inputOnly"
+                label="On Inactive: Navigate Delay (ms)"
+                description="How long (in milliseconds) to wait before triggering navigation when the page becomes inactive." />
+
+
+            <!-- Outputs -->
+            <property name="isPageActive" type="Boolean" role="outputOnly"
+                label="Is Page Active"
+                description="Indicates whether the page is currently visible and focused." />
+
+            <property name="autoNavigatedInactive" type="Boolean" role="outputOnly"
+                label="Auto-Navigated on Inactive"
+                description="Indicates whether auto-navigation was triggered from the page becoming inactive." />
+
+            <property name="autoNavigatedActive" type="Boolean" role="outputOnly"
+                label="Auto-Navigated on Active"
+                description="Indicates whether auto-navigation was triggered from the page becoming active again." />
+
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>
