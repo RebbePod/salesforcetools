@@ -6,6 +6,9 @@ Detects if the page is active or inactive and can auto-navigate in Flow.
 
 <img width="310" alt="image" src="https://github.com/user-attachments/assets/94a1c7a5-105b-4859-a87b-cd92aa00a6b5" />
 
+![ActivePageDetectNavigator](https://github.com/user-attachments/assets/6994e500-5ce4-448b-a272-90fcd756ab06)
+
+
 ### Install
 Download the Zip file and use [workbench](https://workbench.developerforce.com/login.php) to easily install in any org. 
 
