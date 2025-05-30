@@ -1,0 +1,26 @@
+<!-- force-app/main/default/lwc/flowReactiveTileList/flowReactiveTileList.js-meta.xml -->
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>61.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Reactive Tile List</masterLabel>
+    <description>Responsive, Flow-reactive tile list with nested columns &amp; rows.</description>
+    <targets>
+      <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+      <targetConfig targets="lightning__FlowScreen">
+        <propertyType name="PT"          extends="SObject" label="SObject Type"/>
+        <property name="records"         type="{PT[]}"    label="Records"           role="inputOnly"/>
+        <property name="objectApiName"   type="String"     label="SObject API Name"  required="true"/>
+        <property name="layoutConfig"    type="String"     label="Tile Layout Config" role="inputOnly"/>
+        <property name="numColumns"      type="Integer"    label="Number of Columns"/>
+        <property name="minWidth"        type="String"     label="Min Width"/>
+        <property name="maxWidth"        type="String"     label="Max Width"/>
+        <property name="minHeight"       type="String"     label="Min Height"/>
+        <property name="maxHeight"       type="String"     label="Max Height"/>
+        <property name="tileClass"       type="String"     label="Tile CSS Classes"/>
+        <property name="tileStyle"       type="String"     label="Tile Inline Styles"/>
+      </targetConfig>
+    </targetConfigs>
+  </LightningComponentBundle>
+  
