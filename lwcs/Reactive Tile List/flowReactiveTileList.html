@@ -1,0 +1,49 @@
+<template>
+    <template if:true={hasData}>
+      <div class="tile-container" style={containerStyle}>
+        <template for:each={processedRecords} for:item="rec">
+          <div key={rec.id}
+               class="tile-wrapper {tileClass}"
+               style={wrapperStyleComputed}>
+  
+            <template for:each={rec.columns} for:item="col">
+              <div key={col.id} class="tile-column">
+  
+                <template for:each={col.rows} for:item="row">
+                  <div key={row.id}
+                       class="column-row"
+                       style={row.rowStyle}>
+  
+                    <template for:each={row.cells} for:item="cell">
+                      <div key={cell.id}
+                           class="cell"
+                           style={cell.formattingStyle}>
+  
+                        <template if:true={cell.showLabel}>
+                          <span class="field-label"
+                                style={cell.labelStyle}>
+                            {cell.displayLabel}:
+                          </span>
+                        </template>
+  
+                        <span class="field-value">
+                          {cell.displayValue}
+                        </span>
+                      </div>
+                    </template>
+  
+                  </div>
+                </template>
+  
+              </div>
+            </template>
+  
+          </div>
+        </template>
+      </div>
+    </template>
+    <template if:false={hasData}>
+      <p class="no-data">No records to display</p>
+    </template>
+  </template>
+  
