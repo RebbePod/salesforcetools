@@ -1,25 +1,35 @@
 <!-- force-app/main/default/lwc/flowReactiveTileList/flowReactiveTileList.js-meta.xml -->
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>61.0</apiVersion>
+    <apiVersion>58.0</apiVersion>
     <isExposed>true</isExposed>
     <masterLabel>Reactive Tile List</masterLabel>
-    <description>Responsive, Flow-reactive tile list with nested columns &amp; rows.</description>
+    <description>Tile list with true two-way selection props.</description>
     <targets>
       <target>lightning__FlowScreen</target>
     </targets>
     <targetConfigs>
       <targetConfig targets="lightning__FlowScreen">
-        <propertyType name="PT"          extends="SObject" label="SObject Type"/>
-        <property name="records"         type="{PT[]}"    label="Records"           role="inputOnly"/>
-        <property name="objectApiName"   type="String"     label="SObject API Name"  required="true"/>
-        <property name="layoutConfig"    type="String"     label="Tile Layout Config" role="inputOnly"/>
-        <property name="numColumns"      type="Integer"    label="Number of Columns"/>
-        <property name="minWidth"        type="String"     label="Min Width"/>
-        <property name="maxWidth"        type="String"     label="Max Width"/>
-        <property name="minHeight"       type="String"     label="Min Height"/>
-        <property name="maxHeight"       type="String"     label="Max Height"/>
-        <property name="tileClass"       type="String"     label="Tile CSS Classes"/>
-        <property name="tileStyle"       type="String"     label="Tile Inline Styles"/>
+        <propertyType name="PT" extends="SObject" label="SObject Type"/>
+  
+        <!-- input-only props -->
+        <property name="records"           type="{PT[]}"    label="Records"           role="inputOnly"/>
+        <property name="objectApiName"     type="String"     label="SObject API Name"  required="true" role="inputOnly"/>
+        <property name="layoutConfig"      type="String"     label="Tile Layout Config" role="inputOnly"/>
+        <property name="clickMode"         type="String"     label="Click Behavior"
+                  description="viewOnly | singleSelect | multiSelect | singleAutoNavigate" role="inputOnly"/>
+        <property name="numColumns"        type="Integer"    label="Number of Columns" role="inputOnly"/>
+        <property name="minWidth"          type="String"     label="Min Width"          role="inputOnly"/>
+        <property name="maxWidth"          type="String"     label="Max Width"          role="inputOnly"/>
+        <property name="minHeight"         type="String"     label="Min Height"         role="inputOnly"/>
+        <property name="maxHeight"         type="String"     label="Max Height"         role="inputOnly"/>
+        <property name="tileClass"         type="String"     label="Tile CSS Classes"   role="inputOnly"/>
+        <property name="tileStyle"         type="String"     label="Tile Inline Styles" role="inputOnly"/>
+        <property name="selectedTileStyle" type="String"     label="Selected Tile Inline Styles" role="inputOnly"/>
+        <property name="availableActions"  type="String[]"   label="Available Flow Actions" role="inputOnly"/>
+  
+        <!-- two-way props (no role) -->
+        <property name="selectedRecordId"  type="String"     label="Selected Record Id"/>
+        <property name="selectedRecordIds" type="String[]"   label="Selected Record Ids"/>
       </targetConfig>
     </targetConfigs>
   </LightningComponentBundle>
