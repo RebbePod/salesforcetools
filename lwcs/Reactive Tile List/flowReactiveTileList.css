@@ -1,0 +1,33 @@
+/* force-app/main/default/lwc/flowReactiveTileList/flowReactiveTileList.css */
+
+.tile-container {
+    display: grid;
+    grid-gap: 1rem;
+  }
+  
+  .tile-wrapper {
+    /* wrapperStyleComputed applies inner grid + sizing */
+  }
+  
+  .tile-column {
+    /* each JSON column-stack */
+  }
+  
+  .column-row {
+    /* each row lays out its cells horizontally */
+  }
+  
+  .cell {
+    /* individual field/text cell */
+  }
+  
+  .field-label {
+    font-weight: bold;
+    margin-right: 0.25rem;
+  }
+  
+  .no-data {
+    color: #666;
+    font-style: italic;
+  }
+  
