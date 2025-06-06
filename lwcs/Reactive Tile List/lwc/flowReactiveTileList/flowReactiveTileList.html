@@ -13,16 +13,22 @@
           <template for:each={rec.columns} for:item="col">
             <div key={col.id} class="tile-column">
               <template for:each={col.rows} for:item="row">
-                <div key={row.id}
-                     class="column-row"
-                     style={row.rowStyle}>
+                <div
+                  key={row.id}
+                  class="column-row"
+                  style={row.rowStyle}
+                >
                   <template for:each={row.cells} for:item="cell">
-                    <div key={cell.id}
-                         class="cell"
-                         style={cell.formattingStyle}>
+                    <div
+                      key={cell.id}
+                      class="cell"
+                      style={cell.cellStyle}
+                    >
                       <template if:true={cell.showLabel}>
-                        <span class="field-label"
-                              style={cell.labelStyle}>
+                        <span
+                          class="field-label"
+                          style={cell.labelStyle}
+                        >
                           {cell.displayLabel}:
                         </span>
                       </template>

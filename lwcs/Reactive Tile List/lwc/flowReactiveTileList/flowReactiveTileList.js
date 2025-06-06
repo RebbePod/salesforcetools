@@ -27,10 +27,10 @@ export default class FlowReactiveTileList extends LightningElement {
   @api maxHeight;
   @api tileClass            = '';
   @api tileStyle            = '';
-  @api selectedTileStyle    = '';         // CSS overrides for selected cards
-  @api availableActions     = [];         // for autoNavigate
+  @api selectedTileStyle    = '';       // CSS overrides for selected cards
+  @api availableActions     = [];       // for autoNavigate
 
-  /** TWO-WAY bound selection props */
+  /** Flow‐bound selection (two‐way) */
   @api
   get selectedRecordId() {
     return this._selectedRecordId;
@@ -51,7 +51,7 @@ export default class FlowReactiveTileList extends LightningElement {
     this.dispatchEvent(new FlowAttributeChangeEvent('selectedRecordIds', this._selectedRecordIds));
   }
 
-  /** Reactive records setter (cleans up stale selections) */
+  /** Reactive records setter cleans up any stale selections */
   @api
   get records() {
     return this._records;
@@ -71,11 +71,15 @@ export default class FlowReactiveTileList extends LightningElement {
     }
   }
 
-  /** Describe for field-label lookups */
+  /** Describe metadata for field labels */
   @wire(getObjectInfo, { objectApiName: '$objectApiName' })
   objectInfo;
 
-  /** Handle tile clicks */
+  connectedCallback() {
+    // No defaultRecordId logic now—Flow input directly binds selectedRecordId
+  }
+
+  /** Handle tile clicks by writing to public properties */
   handleTileClick(evt) {
     const recId = evt.currentTarget.dataset.recordid;
     console.log('Tile clicked, id:', recId);
@@ -102,22 +106,23 @@ export default class FlowReactiveTileList extends LightningElement {
       // viewOnly: no changes
     }
 
-    console.log('→ Flow-bound selectedRecordId:', this.selectedRecordId);
-    console.log('→ Flow-bound selectedRecordIds:', this.selectedRecordIds);
+    console.log('→ Flow‐bound selectedRecordId:', this.selectedRecordId);
+    console.log('→ Flow‐bound selectedRecordIds:', this.selectedRecordIds);
   }
 
-  /** Dispatch navigation events */
+  /** Dispatch Next/Finish based on Flow’s availableActions */
   autoNavigate() {
     if (this.availableActions.includes('NEXT')) {
       this.dispatchEvent(new FlowNavigationNextEvent());
     } else if (this.availableActions.includes('FINISH')) {
       this.dispatchEvent(new FlowNavigationFinishEvent());
     } else {
-      console.error('Cannot autoNavigate – availableActions=', this.availableActions);
+      console.error('Cannot autoNavigate—availableActions=', this.availableActions);
     }
   }
 
-  /** Helpers for styling & layout */
+  /** ───── Helpers for styling & layout ───── */
+
   get hasData() {
     return Array.isArray(this.records) && this.records.length > 0;
   }
@@ -126,8 +131,8 @@ export default class FlowReactiveTileList extends LightningElement {
     if (this.numColumns) {
       return `grid-template-columns: repeat(${this.numColumns},1fr);`;
     }
-    const min = this.minWidth  || '250px';
-    const max = this.maxWidth  || '1fr';
+    const min = this.minWidth || '250px';
+    const max = this.maxWidth || '1fr';
     return `grid-template-columns: repeat(auto-fill,minmax(${min},${max}));`;
   }
 
@@ -141,8 +146,11 @@ export default class FlowReactiveTileList extends LightningElement {
   }
 
   get config() {
-    try { return JSON.parse(this.layoutConfig) || {}; }
-    catch { return {}; }
+    try {
+      return JSON.parse(this.layoutConfig) || {};
+    } catch {
+      return {};
+    }
   }
 
   get wrapperGridStyle() {
@@ -156,9 +164,9 @@ export default class FlowReactiveTileList extends LightningElement {
     `;
   }
 
-  computeWrapperStyle(isSel) {
+  computeWrapperStyle(isSelected) {
     let style = this.wrapperGridStyle + this.tileStyleComputed;
-    if (isSel) {
+    if (isSelected) {
       style += `
         border: 2px solid #0070d2 !important;
         background-color: #e8f4ff !important;
@@ -170,9 +178,10 @@ export default class FlowReactiveTileList extends LightningElement {
     return style;
   }
 
-  /** Build nested columns/rows for rendering */
+  /** Build nested columns/rows for rendering, honoring new alignment schema */
   get processedRecords() {
     const fields = this.objectInfo.data?.fields || {};
+
     return this.records.map(rec => {
       const singleSel = rec.Id === this.selectedRecordId;
       const multiSel  = this.selectedRecordIds.includes(rec.Id);
@@ -183,44 +192,68 @@ export default class FlowReactiveTileList extends LightningElement {
                           : false;
 
       // include the custom tileClass
-      const wrapperClass = [
-        'tile-wrapper',
-        this.tileClass,
-        isSel ? 'selected' : ''
-      ].filter(Boolean).join(' ');
+      const wrapperClass = ['tile-wrapper', this.tileClass, isSel ? 'selected' : '']
+        .filter(Boolean)
+        .join(' ');
 
       return {
-        id: rec.Id,
+        id:            rec.Id,
         wrapperClass,
-        wrapperStyle: this.computeWrapperStyle(isSel),
-        columns: (this.config.columns || []).map((col, cIdx) => ({
-          id: `${rec.Id}-col-${cIdx}`,
+        wrapperStyle:  this.computeWrapperStyle(isSel),
+        columns:       (this.config.columns || []).map((col, cIdx) => ({
+          id:   `${rec.Id}-col-${cIdx}`,
           rows: (col.rows || []).map((row, rIdx) => {
-            const just = H_MAP[row.alignment?.h] || 'start';
-            return {
-              id: `${rec.Id}-col-${cIdx}-row-${rIdx}`,
-              rowStyle: `
+            const alignment = row.alignment;
+            let rowStyle = '';
+            let perCellAlign = Array.isArray(alignment);
+
+            if (perCellAlign) {
+              // no justify-content at row level
+              rowStyle = `
                 display: grid;
                 grid-auto-flow: column;
                 column-gap: 0.5rem;
-                justify-content: ${just};
-              `,
-              cells: (row.columns || []).map((cell, xIdx) => {
-                const val = cell.type === 'field'
-                  ? rec[cell.value]
-                  : cell.value;
-                const lbl = cell.showLabel
-                  ? (fields[cell.value]?.label || cell.value)
-                  : '';
-                return {
-                  id: `${rec.Id}-col-${cIdx}-row-${rIdx}-cell-${xIdx}`,
-                  showLabel: cell.showLabel,
-                  labelStyle: cell.labelStyle || '',
-                  formattingStyle: cell.style || '',
-                  displayLabel: lbl,
-                  displayValue: val
-                };
-              })
+              `;
+            } else {
+              // uniform row-level alignment
+              const h = H_MAP[alignment?.h] || 'start';
+              rowStyle = `
+                display: grid;
+                grid-auto-flow: column;
+                column-gap: 0.5rem;
+                justify-content: ${h};
+              `;
+            }
+
+            const cells = (row.columns || []).map((cell, xIdx) => {
+              const rawValue = cell.type === 'field' ? rec[cell.value] : cell.value;
+              const cellLabel = cell.showLabel
+                ? (fields[cell.value]?.label || cell.value)
+                : '';
+
+              let cellStyle = cell.formattingStyle || '';
+              if (perCellAlign) {
+                // apply per-cell justify-self
+                const cellAlignObj = alignment[xIdx] || {};
+                const justifySelf = H_MAP[cellAlignObj.h] || 'start';
+                cellStyle += ` justify-self: ${justifySelf};`;
+              }
+
+              return {
+                id:            `${rec.Id}-col-${cIdx}-row-${rIdx}-cell-${xIdx}`,
+                showLabel:     cell.showLabel,
+                labelStyle:    cell.labelStyle || '',
+                formattingStyle: cell.formattingStyle || '',
+                cellStyle,   // include justify-self if needed
+                displayLabel:  cellLabel,
+                displayValue:  rawValue
+              };
+            });
+
+            return {
+              id:       `${rec.Id}-col-${cIdx}-row-${rIdx}`,
+              rowStyle,
+              cells
             };
           })
         }))
