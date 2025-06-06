@@ -7,8 +7,8 @@ import {
 } from 'lightning/flowSupport';
 import { getObjectInfo } from 'lightning/uiObjectInfoApi';
 
-const H_MAP = { left:'start', center:'center', right:'end' };
-const V_MAP = { top:'start', middle:'center', bottom:'end' };
+const H_MAP = { left: 'start', center: 'center', right: 'end' };
+const V_MAP = { top: 'start', middle: 'center', bottom: 'end' };
 
 export default class FlowReactiveTileList extends LightningElement {
   // backing fields
@@ -19,7 +19,7 @@ export default class FlowReactiveTileList extends LightningElement {
   /** Flow inputs */
   @api objectApiName;
   @api layoutConfig;
-  @api clickMode            = 'viewOnly';            // viewOnly | singleSelect | multiSelect | singleAutoNavigate
+  @api clickMode            = 'viewOnly'; // viewOnly|singleSelect|multiSelect|singleAutoNavigate
   @api numColumns;
   @api minWidth;
   @api maxWidth;
@@ -27,8 +27,8 @@ export default class FlowReactiveTileList extends LightningElement {
   @api maxHeight;
   @api tileClass            = '';
   @api tileStyle            = '';
-  @api selectedTileStyle    = '';                   // CSS overrides for selected cards
-  @api availableActions     = [];                   // for autoNavigate
+  @api selectedTileStyle    = '';         // CSS overrides for selected cards
+  @api availableActions     = [];         // for autoNavigate
 
   /** TWO-WAY bound selection props */
   @api
@@ -37,9 +37,8 @@ export default class FlowReactiveTileList extends LightningElement {
   }
   set selectedRecordId(val) {
     this._selectedRecordId = val;
-    this.dispatchEvent(
-      new FlowAttributeChangeEvent('selectedRecordId', val)
-    );
+    console.log('selectedRecordId setter invoked, new value:', val);
+    this.dispatchEvent(new FlowAttributeChangeEvent('selectedRecordId', val));
   }
 
   @api
@@ -48,12 +47,11 @@ export default class FlowReactiveTileList extends LightningElement {
   }
   set selectedRecordIds(val) {
     this._selectedRecordIds = Array.isArray(val) ? val : [];
-    this.dispatchEvent(
-      new FlowAttributeChangeEvent('selectedRecordIds', this._selectedRecordIds)
-    );
+    console.log('selectedRecordIds setter invoked, new value:', this._selectedRecordIds);
+    this.dispatchEvent(new FlowAttributeChangeEvent('selectedRecordIds', this._selectedRecordIds));
   }
 
-  /** RECORDS setter: just cleans out any stale IDs */
+  /** Reactive records setter (cleans up stale selections) */
   @api
   get records() {
     return this._records;
@@ -62,11 +60,11 @@ export default class FlowReactiveTileList extends LightningElement {
     const ids = (value || []).map(r => r.Id);
     this._records = Array.isArray(value) ? value : [];
 
-    // remove a stale single
+    // purge stale single
     if (this._selectedRecordId && !ids.includes(this._selectedRecordId)) {
-        this.selectedRecordId = undefined;
-      }
-    // remove stale in multi
+      this.selectedRecordId = undefined;
+    }
+    // purge stale multi
     const filtered = this._selectedRecordIds.filter(id => ids.includes(id));
     if (filtered.length !== this._selectedRecordIds.length) {
       this.selectedRecordIds = filtered;
@@ -77,9 +75,11 @@ export default class FlowReactiveTileList extends LightningElement {
   @wire(getObjectInfo, { objectApiName: '$objectApiName' })
   objectInfo;
 
-  /** on click, ALWAYS write to the PUBLIC props */
+  /** Handle tile clicks */
   handleTileClick(evt) {
     const recId = evt.currentTarget.dataset.recordid;
+    console.log('Tile clicked, id:', recId);
+
     switch (this.clickMode) {
       case 'singleSelect':
         this.selectedRecordId  = recId;
@@ -92,17 +92,21 @@ export default class FlowReactiveTileList extends LightningElement {
         break;
       case 'multiSelect':
         const arr = this.selectedRecordIds.slice();
-        if (arr.includes(recId)) arr.splice(arr.indexOf(recId), 1);
-        else arr.push(recId);
+        if (arr.includes(recId)) {
+          arr.splice(arr.indexOf(recId), 1);
+        } else {
+          arr.push(recId);
+        }
         this.selectedRecordIds = arr;
         break;
-      // viewOnly: no change
+      // viewOnly: no changes
     }
-    console.log('                ➞ Flow-bound selectedRecordId:', this.selectedRecordId);
-    console.log('                ➞ Flow-bound selectedRecordIds:', this.selectedRecordIds);
+
+    console.log('→ Flow-bound selectedRecordId:', this.selectedRecordId);
+    console.log('→ Flow-bound selectedRecordIds:', this.selectedRecordIds);
   }
 
-  /** Fire Next/Finish based on Flow’s availableActions */
+  /** Dispatch navigation events */
   autoNavigate() {
     if (this.availableActions.includes('NEXT')) {
       this.dispatchEvent(new FlowNavigationNextEvent());
@@ -113,8 +117,7 @@ export default class FlowReactiveTileList extends LightningElement {
     }
   }
 
-  /* ───────────────────────────────────────────────────────────────────── */
-
+  /** Helpers for styling & layout */
   get hasData() {
     return Array.isArray(this.records) && this.records.length > 0;
   }
@@ -157,14 +160,17 @@ export default class FlowReactiveTileList extends LightningElement {
     let style = this.wrapperGridStyle + this.tileStyleComputed;
     if (isSel) {
       style += `
-        border:2px solid #0070d2 !important;
-        background-color:#e8f4ff !important;
+        border: 2px solid #0070d2 !important;
+        background-color: #e8f4ff !important;
       `;
-      if (this.selectedTileStyle) style += this.selectedTileStyle;
+      if (this.selectedTileStyle) {
+        style += this.selectedTileStyle;
+      }
     }
     return style;
   }
 
+  /** Build nested columns/rows for rendering */
   get processedRecords() {
     const fields = this.objectInfo.data?.fields || {};
     return this.records.map(rec => {
@@ -175,32 +181,44 @@ export default class FlowReactiveTileList extends LightningElement {
                         : this.clickMode.startsWith('single')
                           ? singleSel
                           : false;
+
+      // include the custom tileClass
+      const wrapperClass = [
+        'tile-wrapper',
+        this.tileClass,
+        isSel ? 'selected' : ''
+      ].filter(Boolean).join(' ');
+
       return {
-        id:           rec.Id,
-        wrapperClass: `tile-wrapper ${isSel?'selected':''}`,
+        id: rec.Id,
+        wrapperClass,
         wrapperStyle: this.computeWrapperStyle(isSel),
-        columns:      (this.config.columns||[]).map((col,ci)=>({
-          id:   `${rec.Id}-col-${ci}`,
-          rows: (col.rows||[]).map((row,ri)=>{
-            const just = H_MAP[row.alignment?.h]||'start';
+        columns: (this.config.columns || []).map((col, cIdx) => ({
+          id: `${rec.Id}-col-${cIdx}`,
+          rows: (col.rows || []).map((row, rIdx) => {
+            const just = H_MAP[row.alignment?.h] || 'start';
             return {
-              id:       `${rec.Id}-col-${ci}-row-${ri}`,
+              id: `${rec.Id}-col-${cIdx}-row-${rIdx}`,
               rowStyle: `
-                display:grid;
-                grid-auto-flow:column;
-                column-gap:0.5rem;
-                justify-content:${just};
+                display: grid;
+                grid-auto-flow: column;
+                column-gap: 0.5rem;
+                justify-content: ${just};
               `,
-              cells: (row.columns||[]).map((cell,xi)=>{
-                const v = cell.type==='field'? rec[cell.value] : cell.value;
-                const l = cell.showLabel ? (fields[cell.value]?.label||cell.value) : '';
+              cells: (row.columns || []).map((cell, xIdx) => {
+                const val = cell.type === 'field'
+                  ? rec[cell.value]
+                  : cell.value;
+                const lbl = cell.showLabel
+                  ? (fields[cell.value]?.label || cell.value)
+                  : '';
                 return {
-                  id:               `${rec.Id}-col-${ci}-row-${ri}-cell-${xi}`,
-                  showLabel:        cell.showLabel,
-                  labelStyle:       cell.labelStyle||'',
-                  formattingStyle:  cell.style      ||'',
-                  displayLabel:     l,
-                  displayValue:     v
+                  id: `${rec.Id}-col-${cIdx}-row-${rIdx}-cell-${xIdx}`,
+                  showLabel: cell.showLabel,
+                  labelStyle: cell.labelStyle || '',
+                  formattingStyle: cell.style || '',
+                  displayLabel: lbl,
+                  displayValue: val
                 };
               })
             };
