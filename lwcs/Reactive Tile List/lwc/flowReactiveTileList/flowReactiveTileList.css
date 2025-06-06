@@ -1,35 +1,46 @@
 /* force-app/main/default/lwc/flowReactiveTileList/flowReactiveTileList.css */
 
+/* 1. The root container for all tiles, with a grid gap between tiles */
 .tile-container {
-  /* Use CSS var for gap, fallback to 1rem */
   display: grid;
   grid-gap: var(--tile-gap, 1rem);
 }
 
+/* 2. Each tile’s base styling */
 .tile-wrapper {
   cursor: pointer;
   padding: 1rem;
-  /* Use CSS var for border, fallback to 1px solid #ddd */
   border: var(--tile-border, 1px solid #ddd);
   background: #fff;
   transition: box-shadow 0.2s;
 }
-
 .tile-wrapper:hover {
-  /* Use CSS var for hover, fallback to default box-shadow */
   box-shadow: var(--tile-hover, 0 2px 6px rgba(0, 0, 0, 0.15));
 }
-
 .tile-wrapper.selected {
-  /* Use CSS vars for selected border/bg, fallback to defaults */
   border: var(--tile-selected-border, 2px solid #0070d2) !important;
   background-color: var(--tile-selected-bg, #e8f4ff) !important;
 }
 
-/* Nested grids for columns/rows/cells */
-.tile-column { }
-.column-row  { }
-.cell        { }
+/* 3. Each “column” inside a tile stacks its own rows, with a uniform 0.5rem gap */
+.tile-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* 4. Remove ALL vertical margins from buttons/icons; only keep horizontal margin = 0.25rem */
+.cell lightning-button,
+.cell lightning-button-icon {
+  margin: 0 0.25rem;
+}
+
+/* 5. If icon-only, enforce a square size (2rem × 2rem) */
+.slds-button_icon {
+  width: 2rem;
+  height: 2rem;
+  padding: 0.25rem; /* keeps the icon centered */
+}
 
 .field-label {
   font-weight: bold;

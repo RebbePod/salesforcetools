@@ -1,9 +1,8 @@
 <!-- force-app/main/default/lwc/flowReactiveTileList/flowReactiveTileList.html -->
 <template>
   <template if:true={hasData}>
-    <!-- Bind a single “style” attribute (lowercase) to rootAndContainerStyle -->
-    <div class="tile-container"
-         style={rootAndContainerStyle}>
+    <!-- Single “style” attribute (lowercase) bound to rootAndContainerStyle -->
+    <div class="tile-container" style={rootAndContainerStyle}>
       <template for:each={processedRecords} for:item="rec">
         <div
           key={rec.id}
@@ -21,23 +20,56 @@
                   style={row.rowStyle}
                 >
                   <template for:each={row.cells} for:item="cell">
-                    <div
-                      key={cell.id}
-                      class="cell"
-                      style={cell.cellStyle}
-                    >
-                      <template if:true={cell.showLabel}>
-                        <span
-                          class="field-label"
-                          style={cell.labelStyle}
-                        >
-                          {cell.displayLabel}:
-                        </span>
+                    <template if:true={cell.isButton}>
+                      <!-- ICON‐ONLY button -->
+                      <template if:true={cell.isIconOnly}>
+                        <lightning-button-icon
+                          key={cell.id}
+                          data-btnvalue={cell.value}
+                          data-recordid={cell.recordId}
+                          icon-name={cell.iconName}
+                          alternative-text={cell.label}
+                          class={cell.iconClass}
+                          style={cell.combinedStyle}
+                          onclick={handleButtonClick}>
+                        </lightning-button-icon>
                       </template>
-                      <span class="field-value">
-                        {cell.displayValue}
-                      </span>
-                    </div>
+                      <!-- NORMAL button with label -->
+                      <template if:false={cell.isIconOnly}>
+                        <lightning-button
+                          key={cell.id}
+                          data-btnvalue={cell.value}
+                          data-recordid={cell.recordId}
+                          label={cell.label}
+                          title={cell.label}
+                          variant={cell.computedVariant}
+                          icon-name={cell.iconName}
+                          icon-position={cell.iconPosition}
+                          style={cell.combinedStyle}
+                          onclick={handleButtonClick}>
+                        </lightning-button>
+                      </template>
+                    </template>
+                    <template if:false={cell.isButton}>
+                      <!-- NORMAL field/text cell -->
+                      <div
+                        key={cell.id}
+                        class="cell"
+                        style={cell.cellStyle}
+                      >
+                        <template if:true={cell.showLabel}>
+                          <span
+                            class="field-label"
+                            style={cell.labelStyle}
+                          >
+                            {cell.displayLabel}:
+                          </span>
+                        </template>
+                        <span class="field-value">
+                          {cell.displayValue}
+                        </span>
+                      </div>
+                    </template>
                   </template>
                 </div>
               </template>
