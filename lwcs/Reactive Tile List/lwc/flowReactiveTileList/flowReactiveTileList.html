@@ -1,7 +1,9 @@
 <!-- force-app/main/default/lwc/flowReactiveTileList/flowReactiveTileList.html -->
 <template>
   <template if:true={hasData}>
-    <div class="tile-container" style={containerStyle}>
+    <!-- Bind a single “style” attribute (lowercase) to rootAndContainerStyle -->
+    <div class="tile-container"
+         style={rootAndContainerStyle}>
       <template for:each={processedRecords} for:item="rec">
         <div
           key={rec.id}

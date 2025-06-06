@@ -25,10 +25,18 @@ export default class FlowReactiveTileList extends LightningElement {
   @api maxWidth;
   @api minHeight;
   @api maxHeight;
+
+  /** NEW: Custom CSS overrides */
   @api tileClass            = '';
   @api tileStyle            = '';
-  @api selectedTileStyle    = '';       // CSS overrides for selected cards
-  @api availableActions     = [];       // for autoNavigate
+  @api tileGap              = '';  // e.g. "2rem" or "16px"
+  @api tileBorder           = '';  // e.g. "2px dashed red"
+  @api tileHoverStyle       = '';  // e.g. "box-shadow:0 4px 8px rgba(0,0,0,0.2);"
+  @api tileSelectedBorder   = '';  // e.g. "3px solid green"
+  @api tileSelectedBackground = ''; // e.g. "#ffebcc"
+
+  @api selectedTileStyle    = '';   // additional CSS for selected card
+  @api availableActions     = [];   // for autoNavigate
 
   /** Flow‐bound selection (two‐way) */
   @api
@@ -51,7 +59,7 @@ export default class FlowReactiveTileList extends LightningElement {
     this.dispatchEvent(new FlowAttributeChangeEvent('selectedRecordIds', this._selectedRecordIds));
   }
 
-  /** Reactive records setter cleans up any stale selections */
+  /** Reactive records setter: cleans up stale selections */
   @api
   get records() {
     return this._records;
@@ -60,11 +68,11 @@ export default class FlowReactiveTileList extends LightningElement {
     const ids = (value || []).map(r => r.Id);
     this._records = Array.isArray(value) ? value : [];
 
-    // purge stale single
+    // Purge stale single
     if (this._selectedRecordId && !ids.includes(this._selectedRecordId)) {
       this.selectedRecordId = undefined;
     }
-    // purge stale multi
+    // Purge stale multi
     const filtered = this._selectedRecordIds.filter(id => ids.includes(id));
     if (filtered.length !== this._selectedRecordIds.length) {
       this.selectedRecordIds = filtered;
@@ -76,10 +84,10 @@ export default class FlowReactiveTileList extends LightningElement {
   objectInfo;
 
   connectedCallback() {
-    // No defaultRecordId logic now—Flow input directly binds selectedRecordId
+    // No defaultRecordId logic here—Flow binds selectedRecordId directly
   }
 
-  /** Handle tile clicks by writing to public properties */
+  /** Handle tile clicks by writing to the public props */
   handleTileClick(evt) {
     const recId = evt.currentTarget.dataset.recordid;
     console.log('Tile clicked, id:', recId);
@@ -103,7 +111,7 @@ export default class FlowReactiveTileList extends LightningElement {
         }
         this.selectedRecordIds = arr;
         break;
-      // viewOnly: no changes
+      // viewOnly: no action
     }
 
     console.log('→ Flow‐bound selectedRecordId:', this.selectedRecordId);
@@ -127,6 +135,29 @@ export default class FlowReactiveTileList extends LightningElement {
     return Array.isArray(this.records) && this.records.length > 0;
   }
 
+  /** Build CSS variables for the root container */
+  get rootStyleComputed() {
+    let vars = '';
+
+    if (this.tileGap) {
+      vars += `--tile-gap: ${this.tileGap};`;
+    }
+    if (this.tileBorder) {
+      vars += `--tile-border: ${this.tileBorder};`;
+    }
+    if (this.tileHoverStyle) {
+      vars += `--tile-hover: ${this.tileHoverStyle};`;
+    }
+    if (this.tileSelectedBorder) {
+      vars += `--tile-selected-border: ${this.tileSelectedBorder};`;
+    }
+    if (this.tileSelectedBackground) {
+      vars += `--tile-selected-bg: ${this.tileSelectedBackground};`;
+    }
+    return vars;
+  }
+
+  /** Compute the CSS‐grid template for placing tiles */
   get containerStyle() {
     if (this.numColumns) {
       return `grid-template-columns: repeat(${this.numColumns},1fr);`;
@@ -136,15 +167,17 @@ export default class FlowReactiveTileList extends LightningElement {
     return `grid-template-columns: repeat(auto-fill,minmax(${min},${max}));`;
   }
 
+  /** Base tile style (sizing) */
   get tileStyleComputed() {
     let s = this.tileStyle;
-    if (this.minWidth)  s += `min-width:${this.minWidth};`;
-    if (this.maxWidth)  s += `max-width:${this.maxWidth};`;
-    if (this.minHeight) s += `min-height:${this.minHeight};`;
-    if (this.maxHeight) s += `max-height:${this.maxHeight};`;
+    if (this.minWidth)  s += `min-width: ${this.minWidth};`;
+    if (this.maxWidth)  s += `max-width: ${this.maxWidth};`;
+    if (this.minHeight) s += `min-height: ${this.minHeight};`;
+    if (this.maxHeight) s += `max-height: ${this.maxHeight};`;
     return s;
   }
 
+  /** Safely parse the layoutConfig JSON */
   get config() {
     try {
       return JSON.parse(this.layoutConfig) || {};
@@ -153,8 +186,9 @@ export default class FlowReactiveTileList extends LightningElement {
     }
   }
 
+  /** Build the grid‐within‐a‐tile (columns inside each tile) */
   get wrapperGridStyle() {
-    const cols   = (this.config.columns || []).length || 1;
+    const cols = (this.config.columns || []).length || 1;
     const vAlign = V_MAP[this.config.alignment?.v] || 'start';
     return `
       display: grid;
@@ -164,13 +198,10 @@ export default class FlowReactiveTileList extends LightningElement {
     `;
   }
 
+  /** Build each tile’s style string excluding selection effects */
   computeWrapperStyle(isSelected) {
     let style = this.wrapperGridStyle + this.tileStyleComputed;
     if (isSelected) {
-      style += `
-        border: 2px solid #0070d2 !important;
-        background-color: #e8f4ff !important;
-      `;
       if (this.selectedTileStyle) {
         style += this.selectedTileStyle;
       }
@@ -178,7 +209,12 @@ export default class FlowReactiveTileList extends LightningElement {
     return style;
   }
 
-  /** Build nested columns/rows for rendering, honoring new alignment schema */
+  /** Combine root CSS vars + container grid into one style string */
+  get rootAndContainerStyle() {
+    return this.rootStyleComputed + this.containerStyle;
+  }
+
+  /** Build all nested columns/rows/cells, supporting per‐cell alignment */
   get processedRecords() {
     const fields = this.objectInfo.data?.fields || {};
 
@@ -191,31 +227,31 @@ export default class FlowReactiveTileList extends LightningElement {
                           ? singleSel
                           : false;
 
-      // include the custom tileClass
+      // Combine base class + custom tileClass + selected
       const wrapperClass = ['tile-wrapper', this.tileClass, isSel ? 'selected' : '']
         .filter(Boolean)
         .join(' ');
 
       return {
-        id:            rec.Id,
+        id:           rec.Id,
         wrapperClass,
-        wrapperStyle:  this.computeWrapperStyle(isSel),
-        columns:       (this.config.columns || []).map((col, cIdx) => ({
+        wrapperStyle: this.computeWrapperStyle(isSel),
+        columns:      (this.config.columns || []).map((col, cIdx) => ({
           id:   `${rec.Id}-col-${cIdx}`,
           rows: (col.rows || []).map((row, rIdx) => {
             const alignment = row.alignment;
-            let rowStyle = '';
-            let perCellAlign = Array.isArray(alignment);
+            const perCellAlign = Array.isArray(alignment);
 
+            let rowStyle = '';
             if (perCellAlign) {
-              // no justify-content at row level
+              // Per‐cell alignment: row container has no justify-content
               rowStyle = `
                 display: grid;
                 grid-auto-flow: column;
                 column-gap: 0.5rem;
               `;
             } else {
-              // uniform row-level alignment
+              // Uniform row‐level alignment
               const h = H_MAP[alignment?.h] || 'start';
               rowStyle = `
                 display: grid;
@@ -226,27 +262,28 @@ export default class FlowReactiveTileList extends LightningElement {
             }
 
             const cells = (row.columns || []).map((cell, xIdx) => {
-              const rawValue = cell.type === 'field' ? rec[cell.value] : cell.value;
+              const rawValue = cell.type === 'field'
+                ? rec[cell.value]
+                : cell.value;
               const cellLabel = cell.showLabel
                 ? (fields[cell.value]?.label || cell.value)
                 : '';
 
-              let cellStyle = cell.formattingStyle || '';
+              // Now read from cell.style (JSON’s "style") instead of formattingStyle
+              let cellStyle = cell.style || '';
               if (perCellAlign) {
-                // apply per-cell justify-self
                 const cellAlignObj = alignment[xIdx] || {};
                 const justifySelf = H_MAP[cellAlignObj.h] || 'start';
                 cellStyle += ` justify-self: ${justifySelf};`;
               }
 
               return {
-                id:            `${rec.Id}-col-${cIdx}-row-${rIdx}-cell-${xIdx}`,
-                showLabel:     cell.showLabel,
-                labelStyle:    cell.labelStyle || '',
-                formattingStyle: cell.formattingStyle || '',
-                cellStyle,   // include justify-self if needed
-                displayLabel:  cellLabel,
-                displayValue:  rawValue
+                id:              `${rec.Id}-col-${cIdx}-row-${rIdx}-cell-${xIdx}`,
+                showLabel:       cell.showLabel,
+                labelStyle:      cell.labelStyle || '',
+                cellStyle,       // includes JSON’s "style" now
+                displayLabel:    cellLabel,
+                displayValue:    rawValue
               };
             });
 

@@ -3,7 +3,7 @@
   <apiVersion>58.0</apiVersion>
   <isExposed>true</isExposed>
   <masterLabel>Reactive Tile List</masterLabel>
-  <description>Responsive tile list with row‐level or per‐cell alignment via JSON.</description>
+  <description>Tile list with customizable gap, border, hover, and selected styles.</description>
   <targets>
     <target>lightning__FlowScreen</target>
   </targets>
@@ -16,20 +16,29 @@
       <property name="objectApiName"     type="String"     label="SObject API Name"  required="true" role="inputOnly"/>
       <property name="layoutConfig"      type="String"     label="Tile Layout Config" role="inputOnly"/>
       <property name="clickMode"         type="String"     label="Click Behavior"
-                description="viewOnly|singleSelect|multiSelect|singleAutoNavigate" role="inputOnly"/>
+                description="viewOnly | singleSelect | multiSelect | singleAutoNavigate"
+                role="inputOnly"/>
       <property name="numColumns"        type="Integer"    label="Number of Columns" role="inputOnly"/>
       <property name="minWidth"          type="String"     label="Min Width"          role="inputOnly"/>
       <property name="maxWidth"          type="String"     label="Max Width"          role="inputOnly"/>
       <property name="minHeight"         type="String"     label="Min Height"         role="inputOnly"/>
       <property name="maxHeight"         type="String"     label="Max Height"         role="inputOnly"/>
+
+      <!-- NEW: CSS overrides -->
       <property name="tileClass"         type="String"     label="Tile CSS Classes"   role="inputOnly"/>
       <property name="tileStyle"         type="String"     label="Tile Inline Styles" role="inputOnly"/>
-      <property name="selectedTileStyle" type="String"     label="Selected Tile Inline Styles" role="inputOnly"/>
-      <property name="availableActions"  type="String[]"   label="Available Flow Actions" role="inputOnly"/>
+      <property name="tileGap"           type="String"     label="Tile Gap (e.g. 1rem)" role="inputOnly"/>
+      <property name="tileBorder"        type="String"     label="Tile Border (e.g. 1px solid #ddd)" role="inputOnly"/>
+      <property name="tileHoverStyle"    type="String"     label="Tile Hover CSS (e.g. box-shadow:…)" role="inputOnly"/>
+      <property name="tileSelectedBorder" type="String"    label="Selected Tile Border (e.g. 2px solid #0070d2)" role="inputOnly"/>
+      <property name="tileSelectedBackground" type="String" label="Selected Tile Background (e.g. #e8f4ff)" role="inputOnly"/>
 
-      <!-- Two-way binding props (leave role blank) -->
+      <!-- Two-way binding props (no role attribute) -->
       <property name="selectedRecordId"  type="String"     label="Selected Record Id"/>
       <property name="selectedRecordIds" type="String[]"   label="Selected Record Ids"/>
+
+      <property name="selectedTileStyle" type="String"     label="Additional Selected Tile Inline Styles" role="inputOnly"/>
+      <property name="availableActions"  type="String[]"   label="Available Flow Actions" role="inputOnly"/>
     </targetConfig>
   </targetConfigs>
 </LightningComponentBundle>

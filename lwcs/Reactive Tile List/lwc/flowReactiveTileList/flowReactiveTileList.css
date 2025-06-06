@@ -1,29 +1,35 @@
 /* force-app/main/default/lwc/flowReactiveTileList/flowReactiveTileList.css */
 
 .tile-container {
+  /* Use CSS var for gap, fallback to 1rem */
   display: grid;
-  grid-gap: 1rem;
+  grid-gap: var(--tile-gap, 1rem);
 }
 
 .tile-wrapper {
   cursor: pointer;
   padding: 1rem;
-  border: 1px solid #ddd;
+  /* Use CSS var for border, fallback to 1px solid #ddd */
+  border: var(--tile-border, 1px solid #ddd);
   background: #fff;
   transition: box-shadow 0.2s;
 }
+
 .tile-wrapper:hover {
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  /* Use CSS var for hover, fallback to default box-shadow */
+  box-shadow: var(--tile-hover, 0 2px 6px rgba(0, 0, 0, 0.15));
 }
 
-/* Inline selection styling overrides this */
-.tile-wrapper.selected { }
+.tile-wrapper.selected {
+  /* Use CSS vars for selected border/bg, fallback to defaults */
+  border: var(--tile-selected-border, 2px solid #0070d2) !important;
+  background-color: var(--tile-selected-bg, #e8f4ff) !important;
+}
 
+/* Nested grids for columns/rows/cells */
 .tile-column { }
-
-.column-row { }
-
-.cell { }
+.column-row  { }
+.cell        { }
 
 .field-label {
   font-weight: bold;
