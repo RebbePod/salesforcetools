@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tool - Get Picklist Values</fullName>
+    <types>
+        <members>Tool_Get_Picklist_Values</members>
+        <name>Flow</name>
+    </types>
+    <version>62.0</version>
+</Package>
