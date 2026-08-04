@@ -37,7 +37,7 @@ Adding it to the Utility Bar is the easiest option - one placement covers every 
 | `lwc/chatterInlineImagePaste` | LightningComponentBundle |
 | `classes/ChatterInlineImageController.cls` | ApexClass - uploads the pasted image as a `ContentVersion` and returns the embed markup |
 | `classes/ChatterInlineImageControllerTest.cls` | ApexClass - test coverage |
-| `package.xml` | Deployment manifest (API 62.0) |
+| `package.xml` | Deployment manifest (API 67.0) |
 
 ## Contribute
 
