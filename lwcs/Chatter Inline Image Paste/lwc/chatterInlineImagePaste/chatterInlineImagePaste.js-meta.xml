@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata" fqn="chatterInlineImagePaste">
+    <apiVersion>62.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Chatter Inline Image Paste</masterLabel>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightning__UtilityBar</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__AppPage,lightning__RecordPage,lightning__HomePage,lightning__UtilityBar">
+            <property
+                name="chatterGroupName"
+                type="String"
+                label="Chatter Group Name"
+                description="Name of a Chatter Group to share newly uploaded images with. Optional - when left blank the file is shared with the current record instead. With neither a group nor a record the file stays private and only the uploader can see the image."
+            />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

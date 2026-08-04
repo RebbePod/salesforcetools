@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Chatter Inline Image Paste</fullName>
+    <types>
+        <members>ChatterInlineImageController</members>
+        <members>ChatterInlineImageControllerTest</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>chatterInlineImagePaste</members>
+        <name>LightningComponentBundle</name>
+    </types>
+    <version>62.0</version>
+</Package>

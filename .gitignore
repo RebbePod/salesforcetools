@@ -1,21 +1,6 @@
-lwcs/.DS_Store
+# macOS
 .DS_Store
-.DS_Store
-lwcs/.DS_Store
-lwcs/Active Page Detect Navigator/.DS_Store
-lwcs/Reactive Tile List/.DS_Store
-lwcs/Reactive Tile List/lwc/.DS_Store
-Tools/.DS_Store
-Tools/Tool - Get Picklist Values/.DS_Store
-lwcs/Reactive Tile List/lwc/.DS_Store
-.DS_Store
-lwcs/Active Page Detect Navigator/.DS_Store
-.DS_Store
-lwcs/.DS_Store
-lwcs/Active Page Detect Navigator/.DS_Store
-lwcs/Reactive Tile List/.DS_Store
-lwcs/Reactive Tile List/lwc/.DS_Store
-Tools/.DS_Store
-Tools/Tool - Get Picklist Values/.DS_Store
-lwcs/.DS_Store
-.DS_Store
+
+# Salesforce CLI / IDE local cache
+.sfdx/
+.sf/
