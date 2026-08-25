@@ -3,7 +3,10 @@ import { CurrentPageReference } from 'lightning/navigation';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import processBase64Image from '@salesforce/apex/ChatterInlineImageController.processBase64Image';
 
-const TOOLBAR_SELECTOR = 'ul[aria-label="Insert content"]';
+// Anchor on the SLDS structure, not on the toolbar's aria-label ("Insert content").
+// That label is translated to each user's language, so matching it only worked in
+// English orgs.
+const RICH_TEXT_SELECTOR = '.slds-rich-text-editor';
 const INJECTED_MARKER = 'data-image-paste-hook';
 const TOOLTIP_TEXT = 'Click here, then paste (Ctrl+V) to attach an image to this post';
 
@@ -54,25 +57,43 @@ export default class ChatterInlineImagePaste extends LightningElement {
     }
 
     scanForToolbars() {
-        let toolbars;
+        let containers;
         try {
-            toolbars = document.querySelectorAll(TOOLBAR_SELECTOR);
+            containers = document.querySelectorAll(RICH_TEXT_SELECTOR);
         } catch (error) {
             return;
         }
 
-        toolbars.forEach((toolbar) => {
-            if (toolbar.hasAttribute(INJECTED_MARKER)) {
+        containers.forEach((container) => {
+            if (container.hasAttribute(INJECTED_MARKER)) {
                 return;
             }
-            this.injectPlaceholder(toolbar);
+
+            const groups = this.findToolbarGroups(container);
+            if (!groups.length) {
+                // Toolbar hasn't rendered yet - the next poll will pick it up.
+                return;
+            }
+
+            this.injectPlaceholder(container, groups);
         });
     }
 
-    injectPlaceholder(toolbar) {
-        toolbar.setAttribute(INJECTED_MARKER, 'true');
+    // The toolbar is made up of <ul> button groups. Any <ul> the user typed into the
+    // editor body is excluded by requiring the list to contain a <button>, and by
+    // skipping anything inside the editable area.
+    findToolbarGroups(container) {
+        const editor = container.querySelector('.ql-editor');
+        return Array.from(container.querySelectorAll('ul')).filter(
+            (list) => list.querySelector('button') && !(editor && editor.contains(list))
+        );
+    }
 
-        const editor = this.findEditor(toolbar);
+    injectPlaceholder(container, groups) {
+        container.setAttribute(INJECTED_MARKER, 'true');
+
+        const lastGroup = groups[groups.length - 1];
+        const editor = this.findEditor(container);
         if (editor) {
             this.trackSelection(editor);
         }
@@ -84,7 +105,7 @@ export default class ChatterInlineImagePaste extends LightningElement {
         // its own group, SLDS's own stylesheet rounds both of its corners and applies
         // the standard inter-group spacing automatically - no manual copying needed.
         const ourGroup = document.createElement('ul');
-        ourGroup.className = toolbar.className;
+        ourGroup.className = lastGroup.className;
         ourGroup.setAttribute('role', 'presentation');
 
         const li = document.createElement('li');
@@ -105,7 +126,7 @@ export default class ChatterInlineImagePaste extends LightningElement {
         // Belt-and-suspenders: the slds-button classes are normally applied to a
         // <button>, so also copy height/border/background from a real sibling button
         // in case the class alone doesn't fully style a <div> the same way.
-        const referenceButton = toolbar.querySelector('button');
+        const referenceButton = lastGroup.querySelector('button');
         if (referenceButton) {
             const computed = window.getComputedStyle(referenceButton);
             box.style.height = computed.height;
@@ -141,7 +162,7 @@ export default class ChatterInlineImagePaste extends LightningElement {
             box.style.backgroundColor = restingBackgroundColor;
         });
 
-        box.addEventListener('paste', (event) => this.handlePaste(event, box, toolbar, icon, label));
+        box.addEventListener('paste', (event) => this.handlePaste(event, box, container, icon, label));
 
         // The icon/label are non-editable, so a click landing on them wouldn't
         // normally focus the parent editable box. Handle focus/cursor placement
@@ -159,12 +180,11 @@ export default class ChatterInlineImagePaste extends LightningElement {
 
         li.appendChild(box);
         ourGroup.appendChild(li);
-        toolbar.parentNode.insertBefore(ourGroup, toolbar.nextSibling);
+        lastGroup.parentNode.insertBefore(ourGroup, lastGroup.nextSibling);
     }
 
-    findEditor(toolbar) {
-        const richTextContainer = toolbar.closest('.slds-rich-text-editor');
-        return richTextContainer ? richTextContainer.querySelector('.ql-editor') : null;
+    findEditor(container) {
+        return container.querySelector('.ql-editor');
     }
 
     trackSelection(editor) {
@@ -179,7 +199,7 @@ export default class ChatterInlineImagePaste extends LightningElement {
         editor.addEventListener('blur', saveSelection);
     }
 
-    async handlePaste(event, box, toolbar, icon, label) {
+    async handlePaste(event, box, container, icon, label) {
         event.preventDefault();
 
         const items = event.clipboardData ? event.clipboardData.items : [];
@@ -215,7 +235,7 @@ export default class ChatterInlineImagePaste extends LightningElement {
                 throw new Error(result.error || 'Unknown error processing image');
             }
 
-            this.insertIntoEditor(toolbar, result.embedHtml);
+            this.insertIntoEditor(container, result.embedHtml);
             this.flashBoxColor(box, 'green');
         } catch (error) {
             const message =
@@ -237,8 +257,8 @@ export default class ChatterInlineImagePaste extends LightningElement {
         }
     }
 
-    insertIntoEditor(toolbar, embedHtml) {
-        const editor = this.findEditor(toolbar);
+    insertIntoEditor(container, embedHtml) {
+        const editor = this.findEditor(container);
 
         if (!editor) {
             console.error('Could not find the Chatter editor to insert the image into.');
