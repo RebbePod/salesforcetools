@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>62.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <assignments>
         <name>Set_Offset_Output</name>
         <label>Set Offset Output</label>
-        <locationX>379</locationX>
-        <locationY>366</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>varOffset</assignToReference>
             <operator>Assign</operator>
@@ -14,11 +14,12 @@
             </value>
         </assignmentItems>
     </assignments>
+    <description>Returns the running user&apos;s time zone offset from UTC as a number with two decimal places, so fractional-hour zones (e.g. +5.50, +5.75, -3.50) are preserved.</description>
     <environments>Default</environments>
     <formulas>
         <name>formulaDateTimeLocal</name>
         <dataType>DateTime</dataType>
-        <expression>DATETIMEVALUE(TEXT(DATE({!formulaYear}, {!formulaMonth},{!formulaDay})) + &quot; &quot; + {!formulaHourText} + &quot;:00:00&quot;)</expression>
+        <expression>DATETIMEVALUE(TEXT(DATE({!formulaYear}, {!formulaMonth},{!formulaDay})) + &quot; &quot; + {!formulaHourText} + &quot;:&quot; + {!formulaMinuteText} + &quot;:00&quot;)</expression>
     </formulas>
     <formulas>
         <name>formulaDateTimeUTC</name>
@@ -70,6 +71,11 @@
 TEXT({!formulaHour})</expression>
     </formulas>
     <formulas>
+        <name>formulaMinuteText</name>
+        <dataType>String</dataType>
+        <expression>TEXT(VALUE(MID({!DateTimeLocalTT}, FIND(&quot;:&quot;, {!DateTimeLocalTT}) + 1, 2)))</expression>
+    </formulas>
+    <formulas>
         <name>formulaMonth</name>
         <dataType>Number</dataType>
         <expression>    VALUE(
@@ -85,7 +91,7 @@ TEXT({!formulaHour})</expression>
         <name>formulaOffset</name>
         <dataType>Number</dataType>
         <expression>24 * ({!formulaDateTimeLocal} - {!formulaDateTimeUTC})</expression>
-        <scale>0</scale>
+        <scale>2</scale>
     </formulas>
     <formulas>
         <name>formulaYear</name>
@@ -110,7 +116,7 @@ TEXT({!formulaHour})</expression>
     <processMetadataValues>
         <name>CanvasMode</name>
         <value>
-            <stringValue>FREE_FORM_CANVAS</stringValue>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
         </value>
     </processMetadataValues>
     <processMetadataValues>
@@ -121,8 +127,8 @@ TEXT({!formulaHour})</expression>
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <start>
-        <locationX>29</locationX>
-        <locationY>347</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <connector>
             <targetReference>Set_Offset_Output</targetReference>
         </connector>
@@ -149,7 +155,7 @@ TEXT({!formulaHour})</expression>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>true</isOutput>
-        <scale>0</scale>
+        <scale>2</scale>
         <value>
             <numberValue>0.0</numberValue>
         </value>
