@@ -2,9 +2,9 @@
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/donate/?hosted_button_id=4SUBTZ2KBZKML)
 
 # Tool - Get User Timezone Offset
-Get a the hours offset for timezones based on the user. Simple flow with a Date input.
+Get a the hours offset for timezones based on the running user. Simple flow with a Date input.
 
-Download the Zip file and use [workbench](https://workbench.developerforce.com/login.php) to easily install in any org. 
+Download the Zip file and use [Salesforce Inspector Reloaded](https://chromewebstore.google.com/detail/salesforce-inspector-relo/hpijlohoihegkfehhibggnkbjhoemldh) or [workbench](https://workbench.developerforce.com/login.php) to easily install in any org. 
 
 ## Contribute 
 
